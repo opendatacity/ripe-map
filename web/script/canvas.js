@@ -11,10 +11,10 @@ function CanvasLayer (map) {
 	me.setPoints = function (list) {
 		markers = list;
 		layoutLevels();
-		redraw();
+		me.redraw();
 	}
 
-	function redraw() {
+	me.redraw = function () {
 		updateFunctions.forEach(function (func) { func() });
 	}
 
