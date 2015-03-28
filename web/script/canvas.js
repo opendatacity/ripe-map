@@ -1,22 +1,22 @@
 function CanvasLayer (map) {
 	var me = {};
 
+	var minZoom = 4;
+	var maxZoom = 20;
+
 	var updateFunctions = [];
 
 	var markers = [];
 
 	me.setPoints = function (list) {
 		markers = list;
-		markers.forEach(function (marker) { marker.levelPosition = [] });
-		layoutedLevel = [];
-		redraw();
+		layoutLevels();
+		me.redraw();
 	}
 
-	function redraw() {
+	me.redraw = function () {
 		updateFunctions.forEach(function (func) { func() });
 	}
-
-	var layoutedLevel = [];
 
 	var canvasTiles = L.tileLayer.canvas();
 
@@ -29,26 +29,31 @@ function CanvasLayer (map) {
 		var y0 = tilePoint.y*size;
 		var x1 = x0 + size;
 		var y1 = y0 + size;
+		
+		var levelZoom = Math.min(maxZoom, Math.max(zoom, minZoom));
+		
+		var scale = Math.pow(2, zoom-levelZoom);
+		var r = 3*scale;
 
 		function drawTile () {
-			if (!layoutedLevel[zoom]) layoutLevel(zoom);
-
 			markers.forEach(function (marker) {
-				var point = marker.levelPosition[zoom];
-				var r = point.r;
+				var point = marker.levelPosition[levelZoom];
+				var x = point.x*scale;
+				var y = point.y*scale;
 
-				if (point.x + r < x0) return;
-				if (point.x - r > x1) return;
-				if (point.y + r < y0) return;
-				if (point.y - r > y1) return;
+				if (x + r < x0) return;
+				if (x - r > x1) return;
+				if (y + r < y0) return;
+				if (y - r > y1) return;
 
 				ctx.beginPath();
 				ctx.arc(
-					point.x - x0,
-					point.y - y0,
+					x - x0,
+					y - y0,
 					r, 0, Math.PI*2, false);
 				ctx.fillStyle = marker.fillColor;
 				ctx.fill();
+				ctx.lineWidth = scale;
 				ctx.strokeStyle = marker.strokeColor;
 				ctx.stroke();
 			})
@@ -59,11 +64,35 @@ function CanvasLayer (map) {
 		updateFunctions.push(drawTile);
 	}
 
-	function layoutLevel(zoom) {
+	function layoutLevels() {
 		markers.forEach(function (marker) {
-			var p =  map.project([marker.latitude, marker.longitude], zoom);
-			marker.levelPosition[zoom] = { x0:p.x, y0:p.y, x:p.x, y:p.y, r:3 }
+			marker.levelPosition = [];
+		});
+
+		markers.forEach(function (marker) {
+			var p = map.project([marker.latitude, marker.longitude], maxZoom);
+			marker.levelPosition[maxZoom] = { x0:p.x, y0:p.y, x:p.x, y:p.y }
 		})
+
+		layout(maxZoom);
+
+		for (var zoom = maxZoom-1; zoom >= minZoom; zoom--) {
+			markers.forEach(function (marker) {
+				var p0 = map.project([marker.latitude, marker.longitude], zoom);
+				var p = marker.levelPosition[zoom+1];
+				marker.levelPosition[zoom] = {
+					x0:p.x0/2,
+					y0:p.y0/2,
+					x: p0.x,
+					y: p0.y
+				};
+			})
+			layout(zoom);
+		}
+
+		function layout(zoom) {
+
+		}
 	}
 
 	canvasTiles.addTo(map);

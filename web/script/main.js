@@ -1,7 +1,9 @@
 $(function () {
 	var map = L.map('map');
+
 	map.fitWorld();
 	map.setZoom(map.getZoom() + 1);
+	map.setView([50,10], 5);
 
 	// add an OpenStreetMap tile layer
 	L.tileLayer('http://odcdn.de:7772/europe2/{z}/{x}/{y}.png', {
