@@ -12,7 +12,7 @@ function CanvasLayer (map) {
 
 	me.setPoints = function (list) {
 		markers = list;
-		layoutLevels();
+		resetLayout();
 		me.redraw();
 	}
 
@@ -68,34 +68,23 @@ function CanvasLayer (map) {
 		updateFunctions.push(drawTile);
 	}
 
-	function layoutLevels() {
+	function resetLayout() {
 		markers.forEach(function (marker) {
 			marker.levelPosition = [];
-		});
-
-		markers.forEach(function (marker) {
 			var p = map.project([marker.latitude, marker.longitude], maxZoom);
 			marker.levelPosition[maxZoom] = { x0:p.x, y0:p.y, x:p.x, y:p.y }
 		})
 
-		layout(maxZoom);
-
 		for (var zoom = maxZoom-1; zoom >= minZoom; zoom--) {
 			markers.forEach(function (marker) {
-				var p0 = map.project([marker.latitude, marker.longitude], zoom);
 				var p = marker.levelPosition[zoom+1];
 				marker.levelPosition[zoom] = {
 					x0:p.x0/2,
 					y0:p.y0/2,
-					x: p0.x,
-					y: p0.y
+					x: p.x/2,
+					y: p.y/2
 				};
 			})
-			layout(zoom);
-		}
-
-		function layout(zoom) {
-
 		}
 	}
 
@@ -103,3 +92,8 @@ function CanvasLayer (map) {
 
 	return me;
 }
+
+
+
+
+
