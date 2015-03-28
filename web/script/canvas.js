@@ -38,6 +38,8 @@ function CanvasLayer (map) {
 		var r = radius*scale;
 
 		function drawTile () {
+			ctx.clearRect(0,0,size,size);
+
 			markers.forEach(function (marker) {
 				var point = marker.levelPosition[levelZoom];
 				var x = point.x*scale;
