@@ -4,6 +4,8 @@ function CanvasLayer (map) {
 	var minZoom = 4;
 	var maxZoom = 20;
 
+	var radius = 3;
+
 	var updateFunctions = [];
 
 	var markers = [];
@@ -33,7 +35,7 @@ function CanvasLayer (map) {
 		var levelZoom = Math.min(maxZoom, Math.max(zoom, minZoom));
 		
 		var scale = Math.pow(2, zoom-levelZoom);
-		var r = 3*scale;
+		var r = radius*scale;
 
 		function drawTile () {
 			markers.forEach(function (marker) {
