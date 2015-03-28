@@ -36,21 +36,23 @@ $(function () {
 
 	socket.on("atlas_probestatus", function (event, err) {
 		if (err) console.log(err);
-		console.log("I received ");
-		console.log(event);
+		//console.log("I received ");
+		//console.log(event);
 
 		probes.forEach(function (probe) {
 			if(probe.id == event.prb_id){
+				console.log((new Date()).getTime());
+				console.log(probe);
 				probe.status = setStatus(event.event);
 				setColors(probe);
 				canvasLayer.redraw();
 
 				var r = 50;
-				var c = L.circleMarker([probe.longitude, probe.latitude], r, {fillColor: probe.strokeColor}).addTo(map);
+				var c = L.circleMarker([probe.latitude, probe.longitude], {fillColor: probe.fillColor, color: probe.strokeColor, fillOpacity: 1}).addTo(map);
 				var startTime = (new Date()).getTime();
 				var interval = setInterval(function () {
 					var time = (new Date()).getTime();
-					c.setRadius( r*(0-startTime+time)/1000 );
+					c.setRadius( r*(0-startTime+time)/1000);
 					if (time > startTime+1000) {
 						map.removeLayer(c);
 						clearInterval(interval);
