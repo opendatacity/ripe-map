@@ -32,15 +32,13 @@ $(function () {
 	});
 
 
-	var socket = io("https://atlas-stream.ripe.net:443", {path: "/stream/socket.io"});
+	var socket = io('https://atlas-stream.ripe.net:443', {path: '/stream/socket.io'});
 
-	socket.on("atlas_probestatus", function (event, err) {
+	socket.on('atlas_probestatus', function (event, err) {
 		if (err) console.log(err);
-		//console.log("I received ");
-		//console.log(event);
 
 		probes.forEach(function (probe) {
-			if(probe.id == event.prb_id){
+			if (probe.id == event.prb_id) {
 				console.log((new Date()).getTime());
 				console.log(probe);
 				probe.status = setStatus(event.event);
@@ -48,34 +46,42 @@ $(function () {
 				canvasLayer.redraw();
 
 				var r = 50;
-				var c = L.circleMarker([probe.latitude, probe.longitude], {fillColor: probe.fillColor, color: probe.strokeColor, fillOpacity: 1}).addTo(map);
+				var c = L.circleMarker(
+					[probe.latitude, probe.longitude],
+					{fillColor: probe.fillColor, fillOpacity: 1, stroke: false}
+				).addTo(map);
 				var startTime = (new Date()).getTime();
-				var interval = setInterval(function () {
+				redrawCircle();
+				var interval = setInterval(redrawCircle, 40);
+
+				function redrawCircle () {
 					var time = (new Date()).getTime();
-					c.setRadius( r*(0-startTime+time)/1000);
+					var v = (time-startTime)/1000;
+					c.setRadius(r*v);
+					var opacity = 1-Math.pow(v, 2);
+					c.setStyle({fillOpacity:opacity});
+
 					if (time > startTime+1000) {
 						map.removeLayer(c);
 						clearInterval(interval);
 					}
-				}, 40);
-
-
+				}
 
 			}
 		})
 
 	});
 
-	socket.on("connect", function (con) {
-		//socket.emit("atlas_subscribe", {stream_type: "probestatus", sendBacklog: true});
-		socket.emit('atlas_subscribe', {stream_type: "probestatus"});
+	socket.on('connect', function (con) {
+		//socket.emit('atlas_subscribe', {stream_type: 'probestatus', sendBacklog: true});
+		socket.emit('atlas_subscribe', {stream_type: 'probestatus'});
 
 		// Do something when the subscription has been terminated
-		socket.on("atlas_unsubscribed", function (what) {
-			console.log("The client has been unsubscribed from " + what);
+		socket.on('atlas_unsubscribed', function (what) {
+			console.log('The client has been unsubscribed from ' + what);
 		});
 
-		socket.on("atlas_error", function (err) {
+		socket.on('atlas_error', function (err) {
 			console.log(err);
 		});
 

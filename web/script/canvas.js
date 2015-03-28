@@ -15,7 +15,7 @@ function CanvasLayer (map) {
 		resetLayout();
 		me.redraw();
 	}
-
+	
 	me.redraw = function () {
 		updateFunctions.forEach(function (update) { update() });
 	}
