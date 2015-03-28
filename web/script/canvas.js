@@ -17,7 +17,7 @@ function CanvasLayer (map) {
 	}
 
 	me.redraw = function () {
-		updateFunctions.forEach(function (func) { func() });
+		updateFunctions.forEach(function (update) { update() });
 	}
 
 	var canvasTiles = L.tileLayer.canvas();
