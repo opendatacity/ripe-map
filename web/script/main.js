@@ -25,10 +25,7 @@ $(function () {
 		})
 
 		probes.forEach(function (probe) {
-			setColors(probe)
-			//probe.fillColor = (['#eee', '#8e8', '#e88', '#eee'])[probe.status];
-			//probe.strokeColor = (['#888', '#484', '#844', '#888'])[probe.status];
-			//probe.r = 3;
+			setColors(probe);
 		});
 
 		canvasLayer.setPoints(probes);
@@ -41,6 +38,29 @@ $(function () {
 		if (err) console.log(err);
 		console.log("I received ");
 		console.log(event);
+
+		probes.forEach(function (probe) {
+			if(probe.id == event.prb_id){
+				probe.status = setStatus(event.event);
+				setColors(probe);
+				canvasLayer.redraw();
+
+				var r = 50;
+				var c = L.circleMarker([probe.longitude, probe.latitude], r, {fillColor: probe.strokeColor}).addTo(map);
+				var startTime = (new Date()).getTime();
+				var interval = setInterval(function () {
+					var time = (new Date()).getTime();
+					c.setRadius( r*(0-startTime+time)/1000 );
+					if (time > startTime+1000) {
+						map.removeLayer(c);
+						clearInterval(interval);
+					}
+				}, 40);
+
+
+
+			}
+		})
 
 	});
 
@@ -58,6 +78,15 @@ $(function () {
 		});
 
 	});
+
+	function setStatus(val){
+		if(val == 'connect'){
+			return 1;
+		}else if(val == 'disconnect'){
+			return 2;
+		}
+
+	}
 
 	function setColors(probe) {
 		switch (probe.status) {
