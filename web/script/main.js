@@ -1,6 +1,6 @@
 
 $(function () {
-	var map = L.map('map');
+	var map = L.map('map', {zoomAnimation:false});
 	//map.fitWorld();
 	//map.setZoom(map.getZoom()+);
 	map.setView([50,10], 5);
