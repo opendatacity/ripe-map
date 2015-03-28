@@ -6,10 +6,15 @@ function CanvasLayer (map) {
 	var markers = [];
 
 	for (var i = 0; i < 1000; i++) {
+		var r = Math.random()*200;
+		var g = Math.random()*200;
+		var b = Math.random()*200;
+
 		markers.push({
 			lat: (Math.random()-0.5)*170,
 			lng: (Math.random()-0.5)*360,
-			color: 'rgb('+Math.round(Math.random()*256)+','+Math.round(Math.random()*256)+','+Math.round(Math.random()*256)+')'
+			fillColor:   'rgb('+Math.round(r    )+','+Math.round(g    )+','+Math.round(b    )+')',
+			strokeColor: 'rgb('+Math.round(r*0.5)+','+Math.round(g*0.5)+','+Math.round(b*0.5)+')',
 		})
 	}
 
@@ -45,15 +50,17 @@ function CanvasLayer (map) {
 				point.x - x0,
 				point.y - y0,
 				r, 0, Math.PI*2, false);
-			ctx.fillStyle = marker.color;
+			ctx.fillStyle = marker.fillColor;
 			ctx.fill();
+			ctx.strokeStyle = marker.strokeColor;
+			ctx.stroke();
 		})
 	}
 
 	function layoutLevel(zoom) {
 		markers.forEach(function (marker) {
 			var p =  map.project([marker.lat, marker.lng], zoom);
-			marker.levelPosition[zoom] = { x0:p.x, y0:p.y, x:p.x, y:p.y, r:5 }
+			marker.levelPosition[zoom] = { x0:p.x, y0:p.y, x:p.x, y:p.y, r:3 }
 		})
 	}
 
