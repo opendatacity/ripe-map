@@ -6,7 +6,7 @@ function CanvasLayer (map) {
 
 	var radius = 3;
 
-	var updateFunctions = [];
+	var tiles = {};
 
 	var markers = [];
 
@@ -17,12 +17,19 @@ function CanvasLayer (map) {
 	}
 	
 	me.redraw = function () {
-		updateFunctions.forEach(function (update) { update() });
+		Object.keys(tiles).forEach(function (key) {
+			var tile = tiles[key];
+			if ($(tile.canvas).parent().length < 1) {
+				delete tiles[key];
+				return
+			}
+			tile.redraw();
+		});
 	}
 
-	var canvasTiles = L.tileLayer.canvas();
+	var canvasLayer = L.tileLayer.canvas();
 
-	canvasTiles.drawTile = function (canvas, tilePoint, zoom) {
+	canvasLayer.drawTile = function (canvas, tilePoint, zoom) {
 		var size = canvas.width;
 		var ctx = canvas.getContext('2d');
 
@@ -65,7 +72,11 @@ function CanvasLayer (map) {
 
 		drawTile();
 
-		updateFunctions.push(drawTile);
+		var key = [zoom, tilePoint.x, tilePoint.y].join('_');
+		tiles[key] = {
+			canvas:canvas,
+			redraw:drawTile
+		}
 	}
 
 	function resetLayout() {
@@ -88,7 +99,7 @@ function CanvasLayer (map) {
 		}
 	}
 
-	canvasTiles.addTo(map);
+	canvasLayer.addTo(map);
 
 	return me;
 }
