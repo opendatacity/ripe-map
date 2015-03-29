@@ -37,8 +37,8 @@ $(function () {
 
 
 	var activity = d3.select('#viz').append('svg')
-		.attr('width', width)
-		.attr('height', height)
+		.attr('width', $('#m').innerWidth())
+		.attr('height', $('#m').innerHeight())
 		.append('g')
 		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
