@@ -14,6 +14,35 @@ $(function () {
 	var canvasLayer = new CanvasLayer(map);
 
 	var probes;
+	var country = [];
+	var stability = [];
+
+	var margin = {
+		top: 20,
+		bottom: 20,
+		left: 5,
+		right: 5
+	};
+
+	var radius = 40;
+
+	var width = $('#m').innerWidth() - margin.left - margin.right,
+		height = $('#m').innerHeight() - margin.top - margin.bottom;
+
+	var tooltip = d3.select("#tooltip")
+		.append("div")
+		.attr("class", "tipp")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden");
+
+
+	var activity = d3.select('#viz').append('svg')
+		.attr('width', width)
+		.attr('height', height)
+		.append('g')
+		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
 
 	$.getJSON('data/probes.json', function (data) {
 		probes = [];
@@ -33,6 +62,8 @@ $(function () {
 			setColors(probe);
 		});
 
+		prepareData(probes);
+		initChart();
 		canvasLayer.setPoints(probes);
 	});
 	
@@ -87,10 +118,8 @@ $(function () {
 						clearInterval(interval);
 					}
 				}
-
 			}
 		})
-
 	});
 
 	socket.on('connect', function (con) {
@@ -108,13 +137,133 @@ $(function () {
 
 	});
 
+	function prepareData(probes) {
+		probes.forEach(function (p) {
+			if (country.indexOf(p.country_code) == -1) {
+				var i = country.push(p.country_code);
+				stability[i - 1] = {
+					country: p.country_code,
+					id: i-1,
+					online: 0,
+					offline: 0,
+					probes: 0,
+					last_activities: []
+				}
+			}
+		});
+
+		probes.forEach(function (p) {
+			var i = country.indexOf(p.country_code);
+			if (p.status == 1) {
+				stability[i].probes++;
+				stability[i].online++;
+			} else if (p.status == 2) {
+				stability[i].probes++;
+				stability[i].offline++;
+			}
+		});
+
+	}
+
+	function initChart() {
+
+		var w = 0,
+			h = 2;
+
+		stability.sort(function (a, b) {
+			return b.online - a.online;
+		});
+
+		stability.forEach(function (country) {
+			if (country.probes !== 0) {
+
+				var on_perc = 100 * country.online / country.probes;
+				var off_perc = 100 - on_perc;
+
+				if (on_perc == 100) {
+					on_perc = 99;
+					off_perc = 1;
+				} else if (off_perc == 100) {
+					off_perc = 99;
+					on_perc = 1;
+				}
+				var angleOnline = (Math.PI * 2 ) / 100 * on_perc;
+				var angleOffline = (Math.PI * 2 ) / 100 * off_perc;
+
+				if ((w + radius + 4) > width) {
+					w = 0;
+					h = (h + radius + 4);
+				}
+
+				var c = activity.append('g')
+					.attr('class', 'country')
+					.attr('transform', 'translate(' + w + ',' + h + ')')
+					.datum(country)
+					.on('mouseover', function (d) {
+						var s = "<b>" + d.country + "</b><br>Online: " + d.online + " <br> Offline: " + d.offline + " <br> Probes: " + d.probes;
+						return tooltip.style("visibility", "visible")
+							.html(s);
+					})
+					.on('mousemove', function (d) {
+						return tooltip.style("top", (d3.event.layerY - 10) + "px")
+							.style("left", (d3.event.layerX + 10) + "px");
+					})
+					.on('mouseout', function (d) {
+						return tooltip.style("visibility", "hidden");
+					})
+
+				var x1 = (radius / 2) * Math.sin(0);
+				var y1 = 0 - (radius / 2) * Math.cos(0);
+				var x2 = (radius / 2) * Math.sin(angleOnline);
+				var y2 = 0 - (radius / 2) * Math.cos(angleOnline);
+
+				var big = 0;
+				if (angleOnline > Math.PI) {
+					big = 1;
+				}
+
+				var d = "M " + 0 + "," + 0 +					// Start at circle center
+					" L " + x1 + "," + y1 +				 // Draw line to (x1,y1)
+					" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
+					" 0 " + big + ", 1 " +				   // Arc details...
+					x2 + "," + y2 +						 // Arc goes to to (x2,y2)
+					" Z";
+
+				c.append('path')
+					.attr('id', country.country)
+					.attr('class', 'online')
+					.attr('d', d);
+
+				var x1_ = (radius / 2) * Math.sin(angleOnline);
+				var y1_ = 0 - (radius / 2) * Math.cos(angleOnline);
+				var x2_ = (radius / 2) * Math.sin(angleOnline + angleOffline);
+				var y2_ = 0 - (radius / 2) * Math.cos(angleOnline + angleOffline);
+
+				var big_ = 1 - big;
+
+				var d_ = "M " + 0 + "," + 0 +					// Start at circle center
+					" L " + x1_ + "," + y1_ +				 // Draw line to (x1,y1)
+					" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
+					" 0 " + big_ + ", 1 " +				   // Arc details...
+					x2_ + "," + y2_ +						 // Arc goes to to (x2,y2)
+					" Z";
+
+				c.append('path')
+					.attr('id', country.country)
+					.attr('class', 'offline')
+					.attr('d', d_);
+
+				w = (w + radius + 4);
+			}
+		});
+	}
+
 	function setStatus(val){
 		if(val == 'connect'){
 			return 1;
 		}else if(val == 'disconnect'){
 			return 2;
 		}
-
 	}
 
 	function setColors(probe) {
