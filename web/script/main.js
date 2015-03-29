@@ -262,6 +262,17 @@ $(function () {
 				.attr('class', 'offline')
 				.attr('d', d_);
 
+			c.append('text')
+				.attr('x', 0)
+				.attr('y', 1)
+				.attr('font-size', radius/2)
+				.attr('font-family', 'Roboto')
+				.attr('font-weight', '100')
+				.attr('fill', 'rgba(0,0,0,0.3)')
+				.attr('text-anchor', 'middle')
+				.attr('alignment-baseline', 'middle')
+				.text(country.country);
+
 			w = (w + radius + 4);
 		});
 
