@@ -111,7 +111,7 @@ function CanvasLayer (map) {
 		markers.forEach(function (marker) {
 			var point = marker.levelPosition[zoom];
 			var d = Math.sqrt(sqr(mousePoint.x - point.x) + sqr(mousePoint.y - point.y));
-			if (/*(d <= (point.r+1)) && */(d < bestDistance)) {
+			if ((d <= (point.r+1)) && (d < bestDistance)) {
 				bestDistance = d;
 				bestMarker = marker;
 			}

@@ -41,13 +41,10 @@ $(function () {
 		html = html.join('</tr><tr>');
 		html = '<table><tr>'+html+'</tr></table>';
 
-
 		popup
 			.setLatLng([marker.latitude, marker.longitude])
 			.setContent(html)
 			.openOn(map);
-
-		console.log(marker);
 	})
 
 
