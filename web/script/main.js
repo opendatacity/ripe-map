@@ -24,8 +24,6 @@ $(function () {
 		right: 5
 	};
 
-	var radius = 40;
-
 	var width = $('#m').innerWidth() - margin.left - margin.right,
 		height = $('#m').innerHeight() - margin.top - margin.bottom;
 
@@ -167,16 +165,19 @@ $(function () {
 
 	function initChart() {
 
-		var w = 0,
-			h = 2;
+		stability = stability.filter(function (country) {
+			return (country.probes > 0);
+		})
+
+		var radius = Math.sqrt(width*height/stability.length)*0.95 - 4;
+		
+		var w = radius/2,	h = 2;
 
 		stability.sort(function (a, b) {
 			return b.online - a.online;
 		});
 
 		stability.forEach(function (country) {
-			if (country.probes !== 0) {
-
 				var on_perc = 100 * country.online / country.probes;
 				var off_perc = 100 - on_perc;
 
@@ -191,7 +192,7 @@ $(function () {
 				var angleOffline = (Math.PI * 2 ) / 100 * off_perc;
 
 				if ((w + radius + 4) > width) {
-					w = 0;
+					w = radius/2;
 					h = (h + radius + 4);
 				}
 
@@ -212,10 +213,10 @@ $(function () {
 						return tooltip.style("visibility", "hidden");
 					})
 
-				var x1 = (radius / 2) * Math.sin(0);
-				var y1 = 0 - (radius / 2) * Math.cos(0);
-				var x2 = (radius / 2) * Math.sin(angleOnline);
-				var y2 = 0 - (radius / 2) * Math.cos(angleOnline);
+				var x1 =  (radius / 2) * Math.sin(0);
+				var y1 = -(radius / 2) * Math.cos(0);
+				var x2 =  (radius / 2) * Math.sin(angleOnline);
+				var y2 = -(radius / 2) * Math.cos(angleOnline);
 
 				var big = 0;
 				if (angleOnline > Math.PI) {
@@ -234,10 +235,10 @@ $(function () {
 					.attr('class', 'online')
 					.attr('d', d);
 
-				var x1_ = (radius / 2) * Math.sin(angleOnline);
-				var y1_ = 0 - (radius / 2) * Math.cos(angleOnline);
-				var x2_ = (radius / 2) * Math.sin(angleOnline + angleOffline);
-				var y2_ = 0 - (radius / 2) * Math.cos(angleOnline + angleOffline);
+				var x1_ =  (radius / 2) * Math.sin(angleOnline);
+				var y1_ = -(radius / 2) * Math.cos(angleOnline);
+				var x2_ =  (radius / 2) * Math.sin(angleOnline + angleOffline);
+				var y2_ = -(radius / 2) * Math.cos(angleOnline + angleOffline);
 
 				var big_ = 1 - big;
 
@@ -254,7 +255,6 @@ $(function () {
 					.attr('d', d_);
 
 				w = (w + radius + 4);
-			}
 		});
 	}
 
