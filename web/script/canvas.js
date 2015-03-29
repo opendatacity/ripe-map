@@ -80,7 +80,7 @@ function CanvasLayer (map) {
 	}
 
 	function resetLayout() {
-		var roundBy = 200;
+		var roundBy = 1000;
 
 		markers.forEach(function (marker) {
 			marker.latitude  = Math.round(marker.latitude*roundBy);
