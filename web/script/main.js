@@ -1,8 +1,8 @@
 $(function () {
 
-	var map = L.map('map', {zoomAnimation:false, maxZoom:22 });
+	var map = L.map('map', {zoomAnimation: false, maxZoom: 22});
 	map.fitWorld();
-	map.setZoom(map.getZoom()+1);
+	map.setZoom(map.getZoom() + 1);
 	//map.setView([50,10], 5);
 
 
@@ -20,12 +20,13 @@ $(function () {
 	var margin = {
 		top: 20,
 		bottom: 20,
-		left: 5,
+		left: 20,
 		right: 5
 	};
 
 	var width = $('#m').innerWidth() - margin.left - margin.right,
 		height = $('#m').innerHeight() - margin.top - margin.bottom;
+
 
 	var tooltip = d3.select("#tooltip")
 		.append("div")
@@ -64,16 +65,16 @@ $(function () {
 		initChart();
 		canvasLayer.setPoints(probes);
 	});
-	
+
 	var popup = L.popup();
 	canvasLayer.on('click', function (marker) {
 		var html = [];
-		html.push('<td><b>Probe</b></td><td>#'+marker.id+'</td>');
-		html.push('<td><b>ASN (v4)</b></td><td>'+marker.asn_v4+'</td>');
-		html.push('<td><b>Prefix (v4)</b></td><td>'+marker.prefix_v4+'</td>');
-		html.push('<td><b>Status (v4)</b></td><td>'+marker.status_name+'<br>Since '+(new Date(marker.status_since*1000)).toISOString()+'</td>');
+		html.push('<td><b>Probe</b></td><td>#' + marker.id + '</td>');
+		html.push('<td><b>ASN (v4)</b></td><td>' + marker.asn_v4 + '</td>');
+		html.push('<td><b>Prefix (v4)</b></td><td>' + marker.prefix_v4 + '</td>');
+		html.push('<td><b>Status (v4)</b></td><td>' + marker.status_name + '<br>Since ' + (new Date(marker.status_since * 1000)).toISOString() + '</td>');
 		html = html.join('</tr><tr>');
-		html = '<table><tr>'+html+'</tr></table>';
+		html = '<table><tr>' + html + '</tr></table>';
 
 		popup
 			.setLatLng([marker.latitude, marker.longitude])
@@ -89,11 +90,15 @@ $(function () {
 
 		probes.forEach(function (probe) {
 			if (probe.id == event.prb_id) {
-				console.log((new Date()).getTime());
+				//console.log((new Date()).getTime());
 				console.log(probe);
 				probe.status = setStatus(event.event);
 				setColors(probe);
 				canvasLayer.redraw();
+
+
+				//var c = d3.select('#country_'+probe.counrty_code);
+				//console.log(c);
 
 				var r = 50;
 				var c = L.circleMarker(
@@ -104,14 +109,14 @@ $(function () {
 				redrawCircle();
 				var interval = setInterval(redrawCircle, 40);
 
-				function redrawCircle () {
+				function redrawCircle() {
 					var time = (new Date()).getTime();
-					var v = (time-startTime)/1000;
-					c.setRadius(r*v);
-					var opacity = 1-Math.pow(v, 2);
-					c.setStyle({fillOpacity:opacity});
+					var v = (time - startTime) / 1000;
+					c.setRadius(r * v);
+					var opacity = 1 - Math.pow(v, 2);
+					c.setStyle({fillOpacity: opacity});
 
-					if (time > startTime+1000) {
+					if (time > startTime + 1000) {
 						map.removeLayer(c);
 						clearInterval(interval);
 					}
@@ -141,7 +146,7 @@ $(function () {
 				var i = country.push(p.country_code);
 				stability[i - 1] = {
 					country: p.country_code,
-					id: i-1,
+					id: i - 1,
 					online: 0,
 					offline: 0,
 					probes: 0,
@@ -197,7 +202,7 @@ $(function () {
 				}
 
 				var c = activity.append('g')
-					.attr('class', 'country')
+					.attr('class', 'country_' + country.country)
 					.attr('transform', 'translate(' + w + ',' + h + ')')
 					.datum(country)
 					.on('mouseover', function (d) {
@@ -256,12 +261,16 @@ $(function () {
 
 				w = (w + radius + 4);
 		});
+
+		stability.sort(function (a, b) {
+			return a.id - b.id;
+		});
 	}
 
-	function setStatus(val){
-		if(val == 'connect'){
+	function setStatus(val) {
+		if (val == 'connect') {
 			return 1;
-		}else if(val == 'disconnect'){
+		} else if (val == 'disconnect') {
 			return 2;
 		}
 	}
