@@ -174,7 +174,9 @@ $(function () {
 	function initChart() {
 
 		stability = stability.filter(function (country) {
-			return (country.probes > 0);
+			if (country.probes <= 0) return false;
+			if (country.country == '') return false;
+			return true;
 		})
 
 		var radius = Math.sqrt(width*height/stability.length)*0.93 - 4;
