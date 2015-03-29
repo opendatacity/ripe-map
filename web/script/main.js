@@ -90,15 +90,18 @@ $(function () {
 
 		probes.forEach(function (probe) {
 			if (probe.id == event.prb_id) {
-				//console.log((new Date()).getTime());
-				console.log(probe);
+				//console.log(probe);
 				probe.status = setStatus(event.event);
 				setColors(probe);
 				canvasLayer.redraw();
 
-
-				//var c = d3.select('#country_'+probe.counrty_code);
-				//console.log(c);
+				if(probe.event == 'disconnect'){
+					stability[country.indexOf(probe.country_code)].online--;
+					stability[country.indexOf(probe.country_code)].offline++;
+				}else if(probe.event == 'connect'){
+					stability[country.indexOf(probe.country_code)].online++;
+					stability[country.indexOf(probe.country_code)].online--;
+				}
 
 				var r = 50;
 				var c = L.circleMarker(
