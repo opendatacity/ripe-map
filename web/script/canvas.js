@@ -80,6 +80,29 @@ function CanvasLayer (map) {
 	}
 
 	function resetLayout() {
+		var roundBy = 200;
+
+		markers.forEach(function (marker) {
+			marker.latitude  = Math.round(marker.latitude*roundBy);
+			marker.longitude = Math.round(marker.longitude*roundBy);
+		})
+
+		var dups = markers;
+
+		var f = 1;
+		while (dups.length > 0) {
+			
+			f /= 2; dups = splitDups(dups, f, 0.5, [[-1,-1],[1,1],[1,-1],[-1,1]]);
+			//f /= 2; dups = splitDups(dups, f, 0.56, [[0,1],[0.866,-0.5],[-0.866,-0.5]]);
+			//f /= 3; dups = splitDups(dups, f, 1, [[-1,-1],[1,1],[-1,1],[1,-1],[0,-1],[0,1],[1,0],[-1,0]]);
+		}
+
+		markers.forEach(function (marker) {
+			marker.latitude  /= roundBy;
+			marker.longitude /= roundBy;
+		})
+
+
 		markers.forEach(function (marker) {
 			marker.levelPosition = [];
 			var p = map.project([marker.latitude, marker.longitude], maxZoom);
@@ -97,6 +120,34 @@ function CanvasLayer (map) {
 					r: (zoom < minZoom) ? p.r/2 : radius
 				};
 			})
+		}
+
+		function splitDups(list, spread, scale, frac) {
+			spread *= scale;
+
+			var lookup = {};
+
+			list.forEach(function (entry) {
+				var key = [entry.latitude, entry.longitude];
+				if (!lookup[key]) lookup[key] = [];
+				lookup[key].push(entry);
+			})
+
+			var dups = [];
+
+			Object.keys(lookup).forEach(function (key) {
+				var entries = lookup[key];
+				if (entries.length > 1) {
+					var f = Math.cos(entries[0].latitude*Math.PI/(180*roundBy));
+					entries.forEach(function (entry, index) {
+						var dir = frac[index % frac.length];
+						entry.longitude += dir[0]*spread;
+						entry.latitude  += dir[1]*spread*f;
+						dups.push(entry);
+					})
+				}
+			})
+			return dups;
 		}
 	}
 
