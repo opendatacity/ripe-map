@@ -183,83 +183,83 @@ $(function () {
 		});
 
 		stability.forEach(function (country) {
-				var on_perc = 100 * country.online / country.probes;
-				var off_perc = 100 - on_perc;
+			var on_perc = 100 * country.online / country.probes;
+			var off_perc = 100 - on_perc;
 
-				if (on_perc == 100) {
-					on_perc = 99;
-					off_perc = 1;
-				} else if (off_perc == 100) {
-					off_perc = 99;
-					on_perc = 1;
-				}
-				var angleOnline = (Math.PI * 2 ) / 100 * on_perc;
-				var angleOffline = (Math.PI * 2 ) / 100 * off_perc;
+			if (on_perc == 100) {
+				on_perc = 99;
+				off_perc = 1;
+			} else if (off_perc == 100) {
+				off_perc = 99;
+				on_perc = 1;
+			}
+			var angleOnline = (Math.PI * 2 ) / 100 * on_perc;
+			var angleOffline = (Math.PI * 2 ) / 100 * off_perc;
 
-				if ((w + radius + 4) > width) {
-					w = radius/2;
-					h = (h + radius + 4);
-				}
+			if ((w + radius + 4) > width) {
+				w = radius/2;
+				h = (h + radius + 4);
+			}
 
-				var c = activity.append('g')
-					.attr('class', 'country_' + country.country)
-					.attr('transform', 'translate(' + w + ',' + h + ')')
-					.datum(country)
-					.on('mouseover', function (d) {
-						var s = "<b>" + d.country + "</b><br>Online: " + d.online + " <br> Offline: " + d.offline + " <br> Probes: " + d.probes;
-						return tooltip.style("visibility", "visible")
-							.html(s);
-					})
-					.on('mousemove', function (d) {
-						return tooltip.style("top", (d3.event.layerY - 10) + "px")
-							.style("left", (d3.event.layerX + 10) + "px");
-					})
-					.on('mouseout', function (d) {
-						return tooltip.style("visibility", "hidden");
-					})
+			var c = activity.append('g')
+				.attr('class', 'country_' + country.country)
+				.attr('transform', 'translate(' + w + ',' + h + ')')
+				.datum(country)
+				.on('mouseover', function (d) {
+					var s = "<b>" + d.country + "</b><br>Online: " + d.online + " <br> Offline: " + d.offline + " <br> Probes: " + d.probes;
+					return tooltip.style("visibility", "visible")
+						.html(s);
+				})
+				.on('mousemove', function (d) {
+					return tooltip.style("top", (d3.event.layerY - 10) + "px")
+						.style("left", (d3.event.layerX + 10) + "px");
+				})
+				.on('mouseout', function (d) {
+					return tooltip.style("visibility", "hidden");
+				})
 
-				var x1 =  (radius / 2) * Math.sin(0);
-				var y1 = -(radius / 2) * Math.cos(0);
-				var x2 =  (radius / 2) * Math.sin(angleOnline);
-				var y2 = -(radius / 2) * Math.cos(angleOnline);
+			var x1 =  (radius / 2) * Math.sin(0);
+			var y1 = -(radius / 2) * Math.cos(0);
+			var x2 =  (radius / 2) * Math.sin(angleOnline);
+			var y2 = -(radius / 2) * Math.cos(angleOnline);
 
-				var big = 0;
-				if (angleOnline > Math.PI) {
-					big = 1;
-				}
+			var big = 0;
+			if (angleOnline > Math.PI) {
+				big = 1;
+			}
 
-				var d = "M " + 0 + "," + 0 +					// Start at circle center
-					" L " + x1 + "," + y1 +				 // Draw line to (x1,y1)
-					" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
-					" 0 " + big + ", 1 " +				   // Arc details...
-					x2 + "," + y2 +						 // Arc goes to to (x2,y2)
-					" Z";
+			var d = "M " + 0 + "," + 0 +					// Start at circle center
+				" L " + x1 + "," + y1 +				 // Draw line to (x1,y1)
+				" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
+				" 0 " + big + ", 1 " +				   // Arc details...
+				x2 + "," + y2 +						 // Arc goes to to (x2,y2)
+				" Z";
 
-				c.append('path')
-					.attr('id', country.country)
-					.attr('class', 'online')
-					.attr('d', d);
+			c.append('path')
+				.attr('id', country.country)
+				.attr('class', 'online')
+				.attr('d', d);
 
-				var x1_ =  (radius / 2) * Math.sin(angleOnline);
-				var y1_ = -(radius / 2) * Math.cos(angleOnline);
-				var x2_ =  (radius / 2) * Math.sin(angleOnline + angleOffline);
-				var y2_ = -(radius / 2) * Math.cos(angleOnline + angleOffline);
+			var x1_ =  (radius / 2) * Math.sin(angleOnline);
+			var y1_ = -(radius / 2) * Math.cos(angleOnline);
+			var x2_ =  (radius / 2) * Math.sin(angleOnline + angleOffline);
+			var y2_ = -(radius / 2) * Math.cos(angleOnline + angleOffline);
 
-				var big_ = 1 - big;
+			var big_ = 1 - big;
 
-				var d_ = "M " + 0 + "," + 0 +					// Start at circle center
-					" L " + x1_ + "," + y1_ +				 // Draw line to (x1,y1)
-					" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
-					" 0 " + big_ + ", 1 " +				   // Arc details...
-					x2_ + "," + y2_ +						 // Arc goes to to (x2,y2)
-					" Z";
+			var d_ = "M " + 0 + "," + 0 +					// Start at circle center
+				" L " + x1_ + "," + y1_ +				 // Draw line to (x1,y1)
+				" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
+				" 0 " + big_ + ", 1 " +				   // Arc details...
+				x2_ + "," + y2_ +						 // Arc goes to to (x2,y2)
+				" Z";
 
-				c.append('path')
-					.attr('id', country.country)
-					.attr('class', 'offline')
-					.attr('d', d_);
+			c.append('path')
+				.attr('id', country.country)
+				.attr('class', 'offline')
+				.attr('d', d_);
 
-				w = (w + radius + 4);
+			w = (w + radius + 4);
 		});
 
 		stability.sort(function (a, b) {
