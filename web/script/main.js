@@ -174,7 +174,7 @@ $(function () {
 			return (country.probes > 0);
 		})
 
-		var radius = Math.sqrt(width*height/stability.length)*0.95 - 4;
+		var radius = Math.sqrt(width*height/stability.length)*0.93 - 4;
 		
 		var w = radius/2,	h = 2;
 
