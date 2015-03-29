@@ -17,11 +17,16 @@ $(function () {
 
 	$.getJSON('data/probes.json', function (data) {
 		probes = [];
+
 		Object.keys(data).forEach(function (key) {
 			data[key].forEach(function (value, index) {
 				if (!probes[index]) probes[index] = {};
 				probes[index][key] = value;
 			})
+		})
+
+		probes = probes.filter(function (probe) {
+			return probe.status > 0;
 		})
 
 		probes.forEach(function (probe) {
