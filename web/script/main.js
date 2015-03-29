@@ -20,7 +20,7 @@ $(function () {
 	var margin = {
 		top: 20,
 		bottom: 20,
-		left: 5,
+		left: 20,
 		right: 5
 	};
 
