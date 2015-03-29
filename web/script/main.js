@@ -115,21 +115,21 @@ $(function () {
 	function setColors(probe) {
 		switch (probe.status) {
 			case 0 :
-				probe.fillColor = 'rgba(255,215,0, 0.8)';
-				probe.strokeColor = 'rgba(0,0,0, 0.1)';
+				probe.fillColor = 'rgba(234,196,0,1.0)';
+				probe.strokeColor = 'rgba(0,0,0,0.1)';
 				break;
 			case 1:
-				probe.fillColor = 'rgba(111,200,51, 0.8)';
-				probe.strokeColor = 'rgba(0,0,0, 0.1)';
+				probe.fillColor = 'rgba(67,168,0,1.0)';
+				probe.strokeColor = 'rgba(0,0,0,0.1)';
 				break;
 			case 2:
-				probe.fillColor = 'rgba(189,31,48, 0.8)';
-				probe.strokeColor = 'rgba(0,0,0, 0.1)';
+				probe.fillColor = 'rgba(168,0,17,1.0)';
+				probe.strokeColor = 'rgba(0,0,0,0.1)';
 				break;
 
 			case 3:
-				probe.fillColor = 'rgba(98,98,98, 0.8)';
-				probe.strokeColor = 'rgba(0,0,0, 0.1)';
+				probe.fillColor = 'rgba(120,120,120,1.0)';
+				probe.strokeColor = 'rgba(0,0,0,0.1)';
 				break;
 		}
 	}
