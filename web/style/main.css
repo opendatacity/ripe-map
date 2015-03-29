@@ -1,10 +1,22 @@
-html, body, #map {
+html, body{
 	margin: 0;
 	padding: 0;
 	width: 100%;
 	height: 100%;
 }
+#map {
+	margin: 0;
+	padding: 0;
+	width: 75%;
+	height: 100%;
+	float:left;
+}
 
+#m{
+	width: 25%;
+	height: 100%;
+	float: left;
+}
 
 table {
 	border-collapse: collapse;
@@ -18,4 +30,17 @@ td {
 	border-top: 1px solid #ddd;
 	padding: 3px;
 	vertical-align: top;
+}
+
+.offline{
+	fill: rgba(189,31,48, 0.8);
+	stroke: rgba(189,31,48, 1);
+}
+.online{
+	fill: rgba(111,200,51, 0.8);
+	stroke: rgba(111,200,51, 1);
+}
+.tipp {
+	background: rgba(255, 255, 255, 0.7);
+	padding: 10px;
 }
