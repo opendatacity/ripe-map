@@ -1,6 +1,6 @@
 $(function () {
 
-	var map = L.map('map', {zoomAnimation:false});
+	var map = L.map('map', {zoomAnimation:false, maxZoom:22 });
 	map.fitWorld();
 	map.setZoom(map.getZoom()+1);
 	//map.setView([50,10], 5);
@@ -30,6 +30,25 @@ $(function () {
 
 		canvasLayer.setPoints(probes);
 	});
+	
+	var popup = L.popup();
+	canvasLayer.on('click', function (marker) {
+		var html = [];
+		html.push('<td><b>Probe</b></td><td>#'+marker.id+'</td>');
+		html.push('<td><b>ASN (v4)</b></td><td>'+marker.asn_v4+'</td>');
+		html.push('<td><b>Prefix (v4)</b></td><td>'+marker.prefix_v4+'</td>');
+		html.push('<td><b>Status (v4)</b></td><td>'+marker.status_name+'<br>Since '+(new Date(marker.status_since*1000)).toISOString()+'</td>');
+		html = html.join('</tr><tr>');
+		html = '<table><tr>'+html+'</tr></table>';
+
+
+		popup
+			.setLatLng([marker.latitude, marker.longitude])
+			.setContent(html)
+			.openOn(map);
+
+		console.log(marker);
+	})
 
 
 	var socket = io('https://atlas-stream.ripe.net:443', {path: '/stream/socket.io'});
