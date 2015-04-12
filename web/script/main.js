@@ -5,6 +5,23 @@ $(function () {
 	map.setZoom(map.getZoom() + 1);
 	//map.setView([50,10], 5);
 
+	var since, until, speed;
+
+	if(location.hash !== ''){
+		var a = location.hash.split('_');
+		since = a[0];
+		until = a[1];
+		speed = a[2];
+
+	}else{
+		// 1 day -> 24h -> 1440 min -> 86400 sec
+		since = Math.floor(Date.now()/1000) - 86400;
+		until = Math.floor(Date.now()/1000);
+		speed = 10.0;
+	}
+
+	console.log('since: '+since+' until: '+until+' speed: '+speed);
+
 
 	// add an OpenStreetMap tile layer
 	L.tileLayer('https://{s}.tiles.mapbox.com/v4/michaelkreil.opruxcpf/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibWljaGFlbGtyZWlsIiwiYSI6InloMHBnMUkifQ.A5ZAmIPkC-y7yRgNva0chQ', {
@@ -136,9 +153,9 @@ $(function () {
 		//socket.emit('atlas_subscribe', {stream_type: 'probestatus', sendBacklog: true});
 		socket.emit('atlas_subscribe', {
 			stream_type: 'probestatus',
-			startTime: 1427446800,
-			endTime: 1427500800,
-			speed: 20.0
+			startTime: since,
+			endTime: until,
+			speed: speed
 		});
 
 		// Do something when the subscription has been terminated
