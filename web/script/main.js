@@ -62,8 +62,8 @@ $(function () {
 		});
 
 		prepareData(probes);
-		initChart();
-		canvasLayer.setPoints(probes);
+		//initChart();
+		//canvasLayer.setPoints(probes); -> probes are not available for history data
 	});
 
 	var popup = L.popup();
@@ -85,6 +85,8 @@ $(function () {
 
 	var socket = io('https://atlas-stream.ripe.net:443', {path: '/stream/socket.io'});
 
+
+	// TODO every node that appear as an event should be placed on the map
 	socket.on('atlas_probestatus', function (event, err) {
 		if (err) console.log(err);
 
@@ -95,13 +97,13 @@ $(function () {
 				setColors(probe);
 				canvasLayer.redraw();
 
-				if(probe.event == 'disconnect'){
-					stability[country.indexOf(probe.country_code)].online--;
-					stability[country.indexOf(probe.country_code)].offline++;
-				}else if(probe.event == 'connect'){
-					stability[country.indexOf(probe.country_code)].online++;
-					stability[country.indexOf(probe.country_code)].online--;
-				}
+				//if(probe.event == 'disconnect'){
+				//	stability[country.indexOf(probe.country_code)].online--;
+				//	stability[country.indexOf(probe.country_code)].offline++;
+				//}else if(probe.event == 'connect'){
+				//	stability[country.indexOf(probe.country_code)].online++;
+				//	stability[country.indexOf(probe.country_code)].online--;
+				//}
 
 				var r = 50;
 				var c = L.circleMarker(
@@ -128,9 +130,16 @@ $(function () {
 		})
 	});
 
+	//since 1427446800 -> 27th March 2015 09:00 am
+	//until 1427500800 -> 28th March 2015 00:00
 	socket.on('connect', function (con) {
 		//socket.emit('atlas_subscribe', {stream_type: 'probestatus', sendBacklog: true});
-		socket.emit('atlas_subscribe', {stream_type: 'probestatus'});
+		socket.emit('atlas_subscribe', {
+			stream_type: 'probestatus',
+			startTime: 1427446800,
+			endTime: 1427500800,
+			speed: 20.0
+		});
 
 		// Do something when the subscription has been terminated
 		socket.on('atlas_unsubscribed', function (what) {
