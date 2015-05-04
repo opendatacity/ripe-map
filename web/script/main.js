@@ -7,12 +7,16 @@ $(function () {
 
 	var since, until, speed;
 
+
+	// Amsterdam Power outage
+	//since 1427446800 -> 27th March 2015 09:00 am
+	//until 1427500800 -> 28th March 2015 00:00
+
 	if(location.hash !== ''){
 		var a = location.hash.split('_');
 		since = a[0];
 		until = a[1];
 		speed = a[2];
-
 	}else{
 		// 1 day -> 24h -> 1440 min -> 86400 sec
 		since = Math.floor(Date.now()/1000) - 86400;
@@ -41,24 +45,8 @@ $(function () {
 		right: 5
 	};
 
-	var width = $('#m').innerWidth() - margin.left - margin.right,
-		height = $('#m').innerHeight() - margin.top - margin.bottom;
-
-
-	var tooltip = d3.select("#tooltip")
-		.append("div")
-		.attr("class", "tipp")
-		.style("position", "absolute")
-		.style("z-index", "10")
-		.style("visibility", "hidden");
-
-
-	var activity = d3.select('#viz').append('svg')
-		.attr('width', $('#m').innerWidth())
-		.attr('height', $('#m').innerHeight())
-		.append('g')
-		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
+	//var width = $('#m').innerWidth() - margin.left - margin.right,
+	//	height = $('#m').innerHeight() - margin.top - margin.bottom;
 
 	$.getJSON('data/probes.json', function (data) {
 		probes = [];
@@ -107,6 +95,8 @@ $(function () {
 	socket.on('atlas_probestatus', function (event, err) {
 		if (err) console.log(err);
 
+		console.log(event);
+
 		probes.forEach(function (probe) {
 			if (probe.id == event.prb_id) {
 				//console.log(probe);
@@ -118,7 +108,7 @@ $(function () {
 				//	stability[country.indexOf(probe.country_code)].online--;
 				//	stability[country.indexOf(probe.country_code)].offline++;
 				//}else if(probe.event == 'connect'){
-				//	stability[country.indexOf(probe.country_code)].online++;
+				//	stability[country.indexOf(probe.country_code)].online++;@
 				//	stability[country.indexOf(probe.country_code)].online--;
 				//}
 
@@ -144,11 +134,10 @@ $(function () {
 					}
 				}
 			}
-		})
+		});
 	});
 
-	//since 1427446800 -> 27th March 2015 09:00 am
-	//until 1427500800 -> 28th March 2015 00:00
+
 	socket.on('connect', function (con) {
 		//socket.emit('atlas_subscribe', {stream_type: 'probestatus', sendBacklog: true});
 		socket.emit('atlas_subscribe', {
@@ -195,118 +184,6 @@ $(function () {
 			}
 		});
 
-	}
-
-	function initChart() {
-
-		stability = stability.filter(function (country) {
-			if (country.probes <= 0) return false;
-			if (country.country == '') return false;
-			return true;
-		})
-
-		var radius = Math.sqrt(width*height/stability.length)*0.93 - 4;
-		
-		var w = radius/2,	h = 2;
-
-		stability.sort(function (a, b) {
-			return b.online - a.online;
-		});
-
-		stability.forEach(function (country) {
-			var on_perc = 100 * country.online / country.probes;
-			var off_perc = 100 - on_perc;
-
-			if (on_perc == 100) {
-				on_perc = 99;
-				off_perc = 1;
-			} else if (off_perc == 100) {
-				off_perc = 99;
-				on_perc = 1;
-			}
-			var angleOnline = (Math.PI * 2 ) / 100 * on_perc;
-			var angleOffline = (Math.PI * 2 ) / 100 * off_perc;
-
-			if ((w + radius + 4) > width) {
-				w = radius/2;
-				h = (h + radius + 4);
-			}
-
-			var c = activity.append('g')
-				.attr('class', 'country_' + country.country)
-				.attr('transform', 'translate(' + w + ',' + h + ')')
-				.datum(country)
-				.on('mouseover', function (d) {
-					var s = "<b>" + d.country + "</b><br>Online: " + d.online + " <br> Offline: " + d.offline + " <br> Probes: " + d.probes;
-					return tooltip.style("visibility", "visible")
-						.html(s);
-				})
-				.on('mousemove', function (d) {
-					return tooltip.style("top", (d3.event.layerY - 10) + "px")
-						.style("left", (d3.event.layerX + 10) + "px");
-				})
-				.on('mouseout', function (d) {
-					return tooltip.style("visibility", "hidden");
-				})
-
-			var x1 =  (radius / 2) * Math.sin(0);
-			var y1 = -(radius / 2) * Math.cos(0);
-			var x2 =  (radius / 2) * Math.sin(angleOnline);
-			var y2 = -(radius / 2) * Math.cos(angleOnline);
-
-			var big = 0;
-			if (angleOnline > Math.PI) {
-				big = 1;
-			}
-
-			var d = "M " + 0 + "," + 0 +					// Start at circle center
-				" L " + x1 + "," + y1 +				 // Draw line to (x1,y1)
-				" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
-				" 0 " + big + ", 1 " +				   // Arc details...
-				x2 + "," + y2 +						 // Arc goes to to (x2,y2)
-				" Z";
-
-			c.append('path')
-				.attr('id', country.country)
-				.attr('class', 'online')
-				.attr('d', d);
-
-			var x1_ =  (radius / 2) * Math.sin(angleOnline);
-			var y1_ = -(radius / 2) * Math.cos(angleOnline);
-			var x2_ =  (radius / 2) * Math.sin(angleOnline + angleOffline);
-			var y2_ = -(radius / 2) * Math.cos(angleOnline + angleOffline);
-
-			var big_ = 1 - big;
-
-			var d_ = "M " + 0 + "," + 0 +					// Start at circle center
-				" L " + x1_ + "," + y1_ +				 // Draw line to (x1,y1)
-				" A " + (radius / 2) + "," + (radius / 2) + // Draw an arc of radius r
-				" 0 " + big_ + ", 1 " +				   // Arc details...
-				x2_ + "," + y2_ +						 // Arc goes to to (x2,y2)
-				" Z";
-
-			c.append('path')
-				.attr('id', country.country)
-				.attr('class', 'offline')
-				.attr('d', d_);
-
-			c.append('text')
-				.attr('x', 0)
-				.attr('y', 1)
-				.attr('font-size', radius/2)
-				.attr('font-family', 'Roboto')
-				.attr('font-weight', '100')
-				.attr('fill', 'rgba(0,0,0,0.3)')
-				.attr('text-anchor', 'middle')
-				.attr('alignment-baseline', 'middle')
-				.text(country.country);
-
-			w = (w + radius + 4);
-		});
-
-		stability.sort(function (a, b) {
-			return a.id - b.id;
-		});
 	}
 
 	function setStatus(val) {
