@@ -83,11 +83,10 @@ $(function () {
 	})
 
 
-	var socket = io('https://atlas-stream.ripe.net:443', {path: '/stream/socket.io'});
+	var socket = io('http://atlas-stream.ripe.net:80', {path: '/stream/socket.io'});
 
 	socket.on('atlas_probestatus', function (event, err) {
 		if (err) console.log(err);
-
 		probes.forEach(function (probe) {
 			if (probe.id == event.prb_id) {
 				//console.log(probe);
